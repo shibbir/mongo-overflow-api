@@ -1,6 +1,8 @@
 var User             = require("../models/user"),
     //authConfig       = require("../config/auth"),
-    LocalStrategy    = require("passport-local").Strategy;
+    jwt              = require("jwt-simple"),
+    LocalStrategy    = require("passport-local").Strategy,
+    BearerStrategy   = require("passport-http-bearer").Strategy;
     //GoogleStrategy   = require("passport-google-oauth").OAuth2Strategy,
     //GitHubStrategy   = require("passport-github").Strategy,
     //FacebookStrategy = require("passport-facebook").Strategy;
@@ -18,36 +20,36 @@ module.exports = function(passport) {
         });
     });
 
-    /*
+    /**
      =========================================================================
-     ============================== LOCAL LOGIN ==============================
+     ============================== HTTP BEARER ==============================
      =========================================================================
      */
-    passport.use("local-login", new LocalStrategy({
-        usernameField: "email",
-        passwordField: "password",
-        passReqToCallback: true
-    }, function(req, email, password, done) {
-        process.nextTick(function() {
-            User.findOne({ "local.email": email }, function(err, user) {
-                if(err) {
-                    return done(err);
-                }
+    passport.use("http-bearer", new BearerStrategy(function(token, done) {
+        if(token) {
+            try {
+                var decodedToken = jwt.decode(token, "a17dd903-6ffa-46d4-901a-3d34b55fce2b");
 
-                if(!user) {
+                if(decodedToken.exp <= Date.now()) {
                     return done(null, false);
                 }
 
-                if(!user.local.password || !user.validPassword(password)) {
-                    return done(null, false);
-                }
-
-                done(null, user);
-            });
-        });
+                User.findOne({ _id: decodedToken.iss }, function (err, user) {
+                    if(err) {
+                        return done(err);
+                    }
+                    if(!user) {
+                        return done(null, false);
+                    }
+                    return done(null, user, { scope: "read" });
+                });
+            } catch(err) {
+                done(null, false);
+            }
+        }
     }));
 
-    /*
+    /**
      =========================================================================
      ============================= LOCAL SIGNUP ==============================
      =========================================================================

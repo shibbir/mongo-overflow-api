@@ -22,6 +22,7 @@ module.exports = function() {
 
     app.set("json spaces", 2);
     app.set("port", process.env.PORT || 7575);
+    app.set("jwtTokenSecret", "a17dd903-6ffa-46d4-901a-3d34b55fce2b");
 
     return app;
 };
