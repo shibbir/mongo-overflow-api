@@ -61,4 +61,22 @@ var getQuestions = function(req, res) {
     });
 };
 
+var postQuestion = function(req, res) {
+    "use strict";
+
+    var model = {
+        title: validator.escape(req.body.title),
+        description: validator.escape(req.body.description),
+        creator: req.user.id
+    };
+
+    questionRepository.insert(model, function(err, doc) {
+        if(err) {
+            return res.status(500).json(err);
+        }
+        res.status(200).json(doc);
+    });
+};
+
 exports.getQuestions = getQuestions;
+exports.postQuestion = postQuestion;

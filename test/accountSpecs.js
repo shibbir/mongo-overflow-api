@@ -7,7 +7,7 @@ var request  = require("supertest"),
     passport = require("passport");
 
 require("../config/passport")(passport);
-require("../routes/user")(app, passport);
+require("../routes/account")(app, passport);
 
 describe("Local account routes", function() {
 
@@ -93,7 +93,6 @@ describe("Local account routes", function() {
         before(function (done) {
             var newUser = new User();
 
-            newUser._id = mongoose.Types.ObjectId();
             newUser.displayName = "Test User";
             newUser.local.email = "email@example.com";
             newUser.local.name = "Test User";
@@ -128,7 +127,10 @@ describe("Local account routes", function() {
                     if(err) {
                         throw err;
                     }
-                    res.body.should.have.property("access_token");
+                    res.body.should.have.property("accessToken");
+                    res.body.should.have.property("expires");
+                    res.body.should.have.property("issued");
+                    res.body.should.have.property("user");
                     done();
                 });
         });

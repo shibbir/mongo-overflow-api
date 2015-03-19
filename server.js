@@ -12,8 +12,9 @@ require("./config/passport")(passport);
 mongoose.connect(config.db.url);
 
 require("./routes/documentation")(app);
+require("./routes/account")(app, passport);
 require("./routes/user")(app, passport);
-require("./routes/question")(app);
+require("./routes/question")(app, passport);
 
 //require("./config/seeder").seed();
 
