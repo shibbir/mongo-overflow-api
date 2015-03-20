@@ -3,8 +3,14 @@
     Schema   = mongoose.Schema;
 
 var QuestionSchema = Schema({
-    title: String,
-    description: String,
+    title: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
     bounty: Number,
     flags: [{
         type: Schema.Types.ObjectId,
@@ -16,7 +22,8 @@ var QuestionSchema = Schema({
     }],
     creator: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        required: true
     },
     answers: [{
         type: Schema.Types.ObjectId,

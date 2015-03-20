@@ -10,6 +10,7 @@ if(app.settings.env === "production") {
 
 require("./config/passport")(passport);
 mongoose.connect(config.db.url);
+require("./config/mongoose")(mongoose);
 
 require("./routes/documentation")(app);
 require("./routes/account")(app, passport);

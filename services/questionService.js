@@ -3,6 +3,7 @@ var Tag                = require("../models/tag"),
     Question           = require("../models/question"),
     validator          = require("validator"),
     User               = require("../models/user"),
+    formatterService   = require("./formatterService"),
     questionRepository = require("../repositories/questionRepository");
 
 var formatQuestion = function(question) {
@@ -72,7 +73,7 @@ var postQuestion = function(req, res) {
 
     questionRepository.insert(model, function(err, doc) {
         if(err) {
-            return res.status(500).json(err);
+            return res.status(500).json(formatterService.formatValidation(err));
         }
         res.status(200).json(doc);
     });
