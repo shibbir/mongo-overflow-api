@@ -1,25 +1,40 @@
 # MongoOverflow Api
-Provides REST based endpoints for multiple mongooverflow clients
+Provides REST based endpoints for multiple **MongoOverflow** clients
 
-Tools and Technology used in this project:
+Built with these awesome tools:
 
-* [Node.js](http://nodejs.org/)
-* [Express](http://expressjs.com/)
-* [MongoDB](http://www.mongodb.org/)
-* [Socket.IO](http://socket.io/)
-* [Passport](http://passportjs.org/)
+* [** Node.js **](http://nodejs.org/)
+* [** Express **](http://expressjs.com/)
+* [** MongoDB **](http://www.mongodb.org/)
+* [** Socket.IO **](http://socket.io/)
+* [** Passport **](http://passportjs.org/)
+* [** Istanbul **](https://gotwarlost.github.io/istanbul/)
 
-Running Unit Tests
-====================
+Installation
+============
 
-Install mocha globally:
+```bash
+$ npm install -g nodemon
+$ npm start
+```
+
+Running the Unit Tests
+======================
 
 ```bash
 $ npm install -g mocha
+$ cd /path/to/your/source/root
+$ npm test
 ```
-
-Then, Run Tests:
+Code Coverage with Istanbul
+===========================
 
 ```bash
-$ mocha
+$ npm install -g istanbul
+$ cd /path/to/your/source/root
+$ istanbul cover node_modules/mocha/bin/_mocha -- -R spec
 ```
+
+License
+=======
+MongoOverflow is released under the [**MIT License**](http://www.opensource.org/licenses/MIT).

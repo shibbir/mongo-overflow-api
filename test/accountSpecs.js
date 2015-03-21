@@ -134,5 +134,23 @@ describe("Local account routes", function() {
                     done();
                 });
         });
+
+        it("should return authorization error if credentials are invalid", function(done) {
+            request(app)
+                .post("/api/token")
+                .send({
+                    email: "entruder@example.com"
+                })
+                .expect(401)
+                .expect("Content-Type", "application/json; charset=utf-8")
+                .end(function(err, res) {
+                    if(err) {
+                        throw err;
+                    }
+                    res.body.should.have.property("type");
+                    res.body.should.have.property("messages");
+                    done();
+                });
+        });
     });
 });

@@ -22,7 +22,10 @@ module.exports = function(app, passport) {
             }
 
             if(!user || !user.validPassword(req.body.password)) {
-                return res.status(401).json({ message: "Invalid credentials." });
+                return res.status(401).json({
+                    type: "ValidationError",
+                    messages: [ "Invalid credentials." ]
+                });
             }
 
             var expires = moment().add(7, "days").valueOf();
