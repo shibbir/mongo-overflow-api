@@ -83,7 +83,8 @@ describe("Local account routes", function() {
                     if(err) {
                         throw err;
                     }
-                    res.body.should.have.property("message");
+                    res.body.should.have.property("type");
+                    res.body.should.have.property("messages");
                     done();
                 });
         });

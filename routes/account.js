@@ -2,6 +2,30 @@ var jwt    = require("jwt-simple"),
     User   = require("../models/user"),
     moment = require("moment");
 
+var generateToken = function(app, user) {
+    "use strict";
+
+    return jwt.encode({
+        iss: user.id,
+        exp: moment().add(7, "days").valueOf()
+    }, app.get("jwtTokenSecret"));
+};
+
+var tokenResponse = function(app, user, provider) {
+    "use strict";
+
+    return {
+        accessToken: generateToken(app, user),
+        issued: moment().format("dddd, MMMM Do YYYY, h:mm:ssA Z"),
+        expires: moment().add(7, "days").format("dddd, MMMM Do YYYY, h:mm:ssA Z"),
+        user: {
+            _id: user._id,
+            name: user.displayName,
+            email: user[provider].email
+        }
+    };
+};
+
 module.exports = function(app, passport) {
     "use strict";
 
@@ -9,9 +33,13 @@ module.exports = function(app, passport) {
         .post(function(req, res, next) {
             passport.authenticate("local-signup", function(err, user, info) {
                 if(err || !user) {
-                    return res.status(400).json(info);
+                    return res.status(400).json({
+                        type: "ValidationError",
+                        messages: [ info.message ]
+                    });
                 }
-                res.sendStatus(200);
+
+                res.status(200).json(tokenResponse(app, user, "local"));
             })(req, res, next);
         });
 
@@ -28,23 +56,41 @@ module.exports = function(app, passport) {
                 });
             }
 
-            var expires = moment().add(7, "days").valueOf();
+            res.status(200).json(tokenResponse(app, user, "local"));
+        });
+    });
 
-            var token = jwt.encode({
-                iss: user.id,
-                exp: expires
-            }, app.get("jwtTokenSecret"));
+    app.route("/api/facebook").get(passport.authenticate("facebook", { scope : "email" }));
 
-            res.status(200).json({
-                accessToken: token,
-                issued: moment().format("dddd, MMMM Do YYYY, h:mm:ssA Z"),
-                expires: moment().add(7, "days").format("dddd, MMMM Do YYYY, h:mm:ssA Z"),
-                user: {
-                    _id: user._id,
-                    name: user.displayName,
-                    email: user.local.email
+    app.route("/api/facebook/callback")
+        .get(function(req, res, next) {
+            passport.authenticate("facebook", function(err, user, info) {
+                if(err || !user) {
+                    return res.redirect("http://localhost:7070/#/provider=facebook&error=" + info.message);
                 }
-            });
+
+                res.redirect("http://localhost:7070/#/provider=facebook&token=" + user.facebook.token);
+            })(req, res, next);
+        });
+
+    app.route("/api/oauth/user").get(function(req, res) {
+        var token = req.query.token,
+            query;
+
+        if(req.query.provider === "facebook") {
+            query = { "facebook.token": token };
+        } else if(req.query.provider === "google") {
+            query = { "google.token": token };
+        }
+
+        User.findOne(query, "displayName facebook google twitter", function(err, user) {
+            if(err || !user) {
+                return res.status(401).json({
+                    type: "ValidationError",
+                    messages: ["Invalid access token or oauth provider."]
+                });
+            }
+            res.status(200).json(tokenResponse(app, user, req.query.provider));
         });
     });
 };

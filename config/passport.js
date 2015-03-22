@@ -1,11 +1,11 @@
 var User             = require("../models/user"),
-    //authConfig       = require("../config/auth"),
+    oAuthConfig      = require("../config/oAuth"),
     jwt              = require("jwt-simple"),
     LocalStrategy    = require("passport-local").Strategy,
-    BearerStrategy   = require("passport-http-bearer").Strategy;
+    BearerStrategy   = require("passport-http-bearer").Strategy,
     //GoogleStrategy   = require("passport-google-oauth").OAuth2Strategy,
     //GitHubStrategy   = require("passport-github").Strategy,
-    //FacebookStrategy = require("passport-facebook").Strategy;
+    FacebookStrategy = require("passport-facebook").Strategy;
 
 module.exports = function(passport) {
     "use strict";
@@ -103,57 +103,57 @@ module.exports = function(passport) {
      =========================================================================
      */
 
-    //passport.use(new FacebookStrategy({
-    //    clientID: authConfig.facebook.clientID,
-    //    clientSecret: authConfig.facebook.clientSecret,
-    //    callbackURL: authConfig.facebook.callbackURL
-    //}, function(token, refreshToken, profile, done) {
-    //    process.nextTick(function() {
-    //        User.findOne({ $or: [
-    //            { "facebook.id" : profile.id },
-    //            { "local.email": profile.emails[0].value },
-    //            { "twitter.email": profile.emails[0].value },
-    //            { "google.email": profile.emails[0].value },
-    //            { "github.email": profile.emails[0].value }
-    //        ]}, function(err, user) {
-    //            if(err) {
-    //                return done(err);
-    //            }
-    //
-    //            if(user) {
-    //                if(!user.facebook.token) {
-    //                    user.facebook.token = token;
-    //                    user.facebook.name = profile.name.givenName + " " + profile.name.familyName;
-    //                    user.facebook.email = profile.emails[0].value;
-    //
-    //                    user.save(function(err) {
-    //                        if(err) {
-    //                            return done(err);
-    //                        }
-    //                        done(null, user);
-    //                    });
-    //                } else {
-    //                    done(null, user);
-    //                }
-    //            } else {
-    //                var newUser = new User();
-    //
-    //                newUser.facebook.id = profile.id;
-    //                newUser.facebook.token = token;
-    //                newUser.facebook.name = profile.name.givenName + " " + profile.name.familyName;
-    //                newUser.facebook.email = profile.emails[0].value;
-    //                newUser.displayName = newUser.facebook.name;
-    //
-    //                newUser.save(function(err) {
-    //                    if(err) {
-    //                        throw err;
-    //                    }
-    //                    done(null, newUser);
-    //                });
-    //            }
-    //        });
-    //    });
-    //}));
+    passport.use(new FacebookStrategy({
+        clientID: oAuthConfig.facebook.clientID,
+        clientSecret: oAuthConfig.facebook.clientSecret,
+        callbackURL: oAuthConfig.facebook.callbackURL
+    }, function(token, refreshToken, profile, done) {
+        process.nextTick(function() {
+            User.findOne({ $or: [
+                { "facebook.id" : profile.id },
+                { "local.email": profile.emails[0].value },
+                { "twitter.email": profile.emails[0].value },
+                { "google.email": profile.emails[0].value },
+                { "github.email": profile.emails[0].value }
+            ]}, function(err, user) {
+                if(err) {
+                    return done(err);
+                }
+
+                if(user) {
+                    if(!user.facebook.token) {
+                        user.facebook.token = token;
+                        user.facebook.name = profile.name.givenName + " " + profile.name.familyName;
+                        user.facebook.email = profile.emails[0].value;
+
+                        user.save(function(err) {
+                            if(err) {
+                                return done(err);
+                            }
+                            done(null, user);
+                        });
+                    } else {
+                        done(null, user);
+                    }
+                } else {
+                    var newUser = new User();
+
+                    newUser.facebook.id = profile.id;
+                    newUser.facebook.token = token;
+                    newUser.facebook.name = profile.name.givenName + " " + profile.name.familyName;
+                    newUser.facebook.email = profile.emails[0].value;
+                    newUser.displayName = newUser.facebook.name;
+
+                    newUser.save(function(err) {
+                        if(err) {
+                            throw err;
+                        }
+                        done(null, newUser);
+                    });
+                }
+            });
+        });
+    }));
 
     /*
      =========================================================================
