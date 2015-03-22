@@ -60,9 +60,9 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.route("/api/facebook").get(passport.authenticate("facebook", { scope : "email" }));
+    app.route("/auth/facebook").get(passport.authenticate("facebook", { scope : "email" }));
 
-    app.route("/api/facebook/callback")
+    app.route("/auth/facebook/callback")
         .get(function(req, res, next) {
             passport.authenticate("facebook", function(err, user, info) {
                 if(err || !user) {
@@ -70,6 +70,32 @@ module.exports = function(app, passport) {
                 }
 
                 res.redirect("http://localhost:7070/#/provider=facebook&token=" + user.facebook.token);
+            })(req, res, next);
+        });
+
+    app.route("/auth/google").get(passport.authenticate("google", { scope : ["profile", "email"] }));
+
+    app.route("/auth/google/callback")
+        .get(function(req, res, next) {
+            passport.authenticate("google", function(err, user, info) {
+                if(err || !user) {
+                    return res.redirect("http://localhost:7070/#/provider=google&error=" + info.message);
+                }
+
+                res.redirect("http://localhost:7070/#/provider=google&token=" + user.google.token);
+            })(req, res, next);
+        });
+
+    app.route("/auth/github").get(passport.authenticate("github"));
+
+    app.route("/auth/github/callback")
+        .get(function(req, res, next) {
+            passport.authenticate("github", function(err, user, info) {
+                if(err || !user) {
+                    return res.redirect("http://localhost:7070/#/provider=github&error=" + info.message);
+                }
+
+                res.redirect("http://localhost:7070/#/provider=github&token=" + user.github.token);
             })(req, res, next);
         });
 

@@ -3,8 +3,8 @@ var User             = require("../models/user"),
     jwt              = require("jwt-simple"),
     LocalStrategy    = require("passport-local").Strategy,
     BearerStrategy   = require("passport-http-bearer").Strategy,
-    //GoogleStrategy   = require("passport-google-oauth").OAuth2Strategy,
-    //GitHubStrategy   = require("passport-github").Strategy,
+    GoogleStrategy   = require("passport-google-oauth").OAuth2Strategy,
+    GitHubStrategy   = require("passport-github").Strategy,
     FacebookStrategy = require("passport-facebook").Strategy;
 
 module.exports = function(passport) {
@@ -155,119 +155,119 @@ module.exports = function(passport) {
         });
     }));
 
-    /*
+    /**
      =========================================================================
      ================================ GOOGLE =================================
      =========================================================================
      */
 
-    //passport.use(new GoogleStrategy({
-    //        clientID: authConfig.google.clientID,
-    //        clientSecret: authConfig.google.clientSecret,
-    //        callbackURL: authConfig.google.callbackURL
-    //    },
-    //    function(token, refreshToken, profile, done) {
-    //        process.nextTick(function() {
-    //            User.findOne({ $or: [
-    //                { "google.id": profile.id },
-    //                { "facebook.email": profile.emails[0].value },
-    //                { "local.email": profile.emails[0].value },
-    //                { "twitter.email": profile.emails[0].value },
-    //                { "github.email": profile.emails[0].value }
-    //            ]}, function(err, user) {
-    //                if(err) {
-    //                    return done(err);
-    //                }
-    //
-    //                if(user) {
-    //                    if(!user.google.token) {
-    //                        user.google.token = token;
-    //                        user.google.name = profile.displayName;
-    //                        user.google.email = profile.emails[0].value;
-    //
-    //                        user.save(function(err) {
-    //                            if(err) {
-    //                                return done(err);
-    //                            }
-    //                            done(null, user);
-    //                        });
-    //                    } else {
-    //                        done(null, user);
-    //                    }
-    //                } else {
-    //                    var newUser = new User();
-    //                    newUser.google.id = profile.id;
-    //                    newUser.google.token = token;
-    //                    newUser.google.name = profile.displayName;
-    //                    newUser.google.email = profile.emails[0].value;
-    //                    newUser.displayName = profile.displayName;
-    //
-    //                    newUser.save(function(err) {
-    //                        if(err) {
-    //                            return done(err);
-    //                        }
-    //                        done(null, newUser);
-    //                    });
-    //                }
-    //            });
-    //        });
-    //    }));
+    passport.use(new GoogleStrategy({
+            clientID: oAuthConfig.google.clientID,
+            clientSecret: oAuthConfig.google.clientSecret,
+            callbackURL: oAuthConfig.google.callbackURL
+        },
+        function(token, refreshToken, profile, done) {
+            process.nextTick(function() {
+                User.findOne({ $or: [
+                    { "google.id": profile.id },
+                    { "facebook.email": profile.emails[0].value },
+                    { "local.email": profile.emails[0].value },
+                    { "twitter.email": profile.emails[0].value },
+                    { "github.email": profile.emails[0].value }
+                ]}, function(err, user) {
+                    if(err) {
+                        return done(err);
+                    }
 
-    /*
+                    if(user) {
+                        if(!user.google.token) {
+                            user.google.token = token;
+                            user.google.name = profile.displayName;
+                            user.google.email = profile.emails[0].value;
+
+                            user.save(function(err) {
+                                if(err) {
+                                    return done(err);
+                                }
+                                done(null, user);
+                            });
+                        } else {
+                            done(null, user);
+                        }
+                    } else {
+                        var newUser = new User();
+                        newUser.google.id = profile.id;
+                        newUser.google.token = token;
+                        newUser.google.name = profile.displayName;
+                        newUser.google.email = profile.emails[0].value;
+                        newUser.displayName = profile.displayName;
+
+                        newUser.save(function(err) {
+                            if(err) {
+                                return done(err);
+                            }
+                            done(null, newUser);
+                        });
+                    }
+                });
+            });
+        }));
+
+    /**
      =========================================================================
      ================================ GITHUB =================================
      =========================================================================
      */
 
-    //passport.use(new GitHubStrategy({
-    //    clientID: authConfig.github.clientID,
-    //    clientSecret: authConfig.github.clientSecret,
-    //    callbackURL: authConfig.github.callbackURL
-    //}, function(token, refreshToken, profile, done) {
-    //    process.nextTick(function() {
-    //        User.findOne({ $or: [
-    //            { "github.id": profile.id },
-    //            { "facebook.email": profile.emails[0].value },
-    //            { "google.email": profile.emails[0].value },
-    //            { "local.email": profile.emails[0].value },
-    //            { "twitter.email": profile.emails[0].value }
-    //        ]}, function(err, user) {
-    //            if(err) {
-    //                return done(err);
-    //            }
-    //
-    //            if(user) {
-    //                if(!user.github.id) {
-    //                    user.github.id = profile.id;
-    //                    user.github.name = profile.displayName;
-    //                    user.github.email = profile.emails[0].value;
-    //                    user.github.username = profile.username;
-    //
-    //                    user.save(function(err) {
-    //                        if(err) {
-    //                            return done(err);
-    //                        }
-    //                        done(null, user);
-    //                    });
-    //                } else {
-    //                    done(null, user);
-    //                }
-    //            } else {
-    //                var newUser = new User();
-    //                newUser.github.id = profile.id;
-    //                newUser.github.name = profile.displayName;
-    //                newUser.github.email = profile.emails[0].value;
-    //                newUser.github.username = profile.username;
-    //                newUser.displayName = profile.displayName;
-    //
-    //                newUser.save(function(err) {
-    //                    if(err) {
-    //                        return done(err);
-    //                    }
-    //                    done(null, newUser);
-    //                });
-    //            }
-    //        });
-    //    });
-    //}));
+    passport.use(new GitHubStrategy({
+        clientID: oAuthConfig.github.clientID,
+        clientSecret: oAuthConfig.github.clientSecret,
+        callbackURL: oAuthConfig.github.callbackURL
+    }, function(token, refreshToken, profile, done) {
+        process.nextTick(function() {
+            User.findOne({ $or: [
+                { "github.id": profile.id },
+                { "facebook.email": profile.emails[0].value },
+                { "google.email": profile.emails[0].value },
+                { "local.email": profile.emails[0].value },
+                { "twitter.email": profile.emails[0].value }
+            ]}, function(err, user) {
+                if(err) {
+                    return done(err);
+                }
+
+                if(user) {
+                    if(!user.github.id) {
+                        user.github.id = profile.id;
+                        user.github.name = profile.displayName;
+                        user.github.email = profile.emails[0].value;
+                        user.github.username = profile.username;
+
+                        user.save(function(err) {
+                            if(err) {
+                                return done(err);
+                            }
+                            done(null, user);
+                        });
+                    } else {
+                        done(null, user);
+                    }
+                } else {
+                    var newUser = new User();
+                    newUser.github.id = profile.id;
+                    newUser.github.name = profile.displayName;
+                    newUser.github.email = profile.emails[0].value;
+                    newUser.github.username = profile.username;
+                    newUser.displayName = profile.displayName;
+
+                    newUser.save(function(err) {
+                        if(err) {
+                            return done(err);
+                        }
+                        done(null, newUser);
+                    });
+                }
+            });
+        });
+    }));
 };
