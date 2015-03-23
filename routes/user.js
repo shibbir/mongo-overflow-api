@@ -3,10 +3,10 @@ var userService = require("../services/userService");
 module.exports = function(app, passport) {
     "use strict";
 
-    app.route("/api/users/changePassword")
+    app.route("/api/users/:id/changePassword")
         .patch(passport.authenticate("http-bearer", { session: false }), userService.changePassword);
 
-    app.route("/api/users/changeAvatar")
+    app.route("/api/users/:id/changeAvatar")
         .patch(passport.authenticate("http-bearer", { session: false }), userService.changeAvatar);
 
     app.route("/api/users/:id")

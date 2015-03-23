@@ -41,7 +41,7 @@ var getUser = function(req, res) {
             doc = doc.toObject();
 
             if(doc.avatar) {
-                doc.avatar = utilityService.getProtocol(req) + "://" + "localhost:7070" + "/uploads/" + doc.avatar;
+                doc.avatar = utilityService.getProtocol(req) + "://" + "localhost:7575" + "/uploads/" + doc.avatar;
             }
 
             res.status(200).json(formatUserViewModel(doc));
@@ -66,10 +66,14 @@ var addViewer = function(req, res) {
 var updateInfo = function(req, res) {
     "use strict";
 
+    if(req.params.id !== req.user.id.toString()) {
+        return res.sendStatus(401);
+    }
+
     var model = {
         bio: validator.escape(req.body.bio),
-        "local.name": req.body.local.name,
-        "local.email": req.body.local.email,
+        "local.name": req.body.name,
+        "local.email": req.body.email,
         website: req.body.website,
         location: req.body.location,
         "birthday.day": _.parseInt(_.result(req.body.birthday, "day")),
@@ -90,11 +94,15 @@ var updateInfo = function(req, res) {
 var changeAvatar = function(req, res) {
     "use strict";
 
+    if(req.params.id !== req.user.id.toString()) {
+        return res.sendStatus(401);
+    }
+
     if(!req.files.file) {
         return res.sendStatus(400);
     }
 
-    userRepository.update({ _id: req.user.id }, { $set: { avatar: req.files.file.name }}, null, function(err) {
+    userRepository.update({ _id: req.params.id }, { $set: { avatar: req.files.file.name }}, null, function(err) {
         if(err) {
             return res.sendStatus(500);
         }
@@ -106,6 +114,10 @@ var changeAvatar = function(req, res) {
 var changePassword = function(req, res) {
     "use strict";
 
+    if(req.params.id !== req.user.id.toString()) {
+        return res.sendStatus(401);
+    }
+
     if(!req.user.validPassword(req.body.oldPassword)) {
         return res.status(400).json({ message: "Old password is incorrect." });
     }
@@ -114,7 +126,7 @@ var changePassword = function(req, res) {
         return res.status(400).json({ message: "Confirm password didn't match." });
     }
 
-    userRepository.update({ _id: req.user.id }, { $set: { "local.password": req.user.generateHash(req.body.newPassword) }}, null, function(err) {
+    userRepository.update({ _id: req.params.id }, { $set: { "local.password": req.user.generateHash(req.body.newPassword) }}, null, function(err) {
         if(err) {
             return res.sendStatus(500);
         }

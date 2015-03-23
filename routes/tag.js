@@ -1,4 +1,4 @@
-var tagService    = require("../services/tagService");
+var tagService = require("../services/tagService");
 
 module.exports = function(app, passport) {
     "use strict";

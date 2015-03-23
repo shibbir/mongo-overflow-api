@@ -77,7 +77,7 @@ var getQuestions = function(req, res) {
             res.status(200).json({
                 pagination: {
                     page: page,
-                    pages: count / size
+                    pages: Math.floor(count / size)
                 },
                 data: docs
             });

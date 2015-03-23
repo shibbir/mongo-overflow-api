@@ -16,6 +16,8 @@ require("./routes/documentation")(app);
 require("./routes/account")(app, passport);
 require("./routes/user")(app, passport);
 require("./routes/question")(app, passport);
+require("./routes/comment")(app, passport);
+require("./routes/tag")(app, passport);
 
 //require("./config/seeder").seed();
 
