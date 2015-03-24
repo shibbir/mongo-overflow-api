@@ -12,7 +12,6 @@ var formatUserViewModel = function(user) {
     if(user.birthday) {
         user.age = utilityService.calcAge(user.birthday.year + "/" + user.birthday.month + "/" + user.birthday.day);
         user.date = moment(user.date).format("MMMM D, YYYY");
-        delete user.birthday;
     }
 
     if(user.local) {
@@ -72,13 +71,22 @@ var updateInfo = function(req, res) {
     }
 
     var model = {
-        bio: validator.escape(req.body.bio),
         "local.name": req.body.name,
         "local.email": req.body.email,
-        website: req.body.website,
-        location: req.body.location,
         displayName: req.body.displayName
     };
+
+    if(!_.isUndefined(req.body.bio)) {
+        model.bio = validator.escape(req.body.bio);
+    }
+
+    if(!_.isUndefined(req.body.website)) {
+        model.website = validator.escape(req.body.website);
+    }
+
+    if(!_.isUndefined(req.body.location)) {
+        model.location = validator.escape(req.body.location);
+    }
 
     if(req.body.birthday && !isNaN(req.body.birthday.day) && !isNaN(req.body.birthday.month) && !isNaN(req.body.birthday.year)) {
         model.birthday = {
