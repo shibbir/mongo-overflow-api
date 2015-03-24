@@ -29,7 +29,7 @@ describe("Local account routes", function() {
             newUser.displayName = "Test User";
             newUser.local.email = "email@example.com";
             newUser.local.name = "Test User";
-            newUser.local.password = newUser.generateHash("test123");
+            newUser.local.password = newUser.generateHash("xxx-xxx");
             newUser.save(function(err) {
                 if(err) {
                     throw err;
@@ -58,7 +58,7 @@ describe("Local account routes", function() {
                 .send({
                     name: "Test User",
                     email: "email2@example.com",
-                    password: "test123"
+                    password: "xxx-xxx"
                 })
                 .expect(200)
                 .end(function(err) {
@@ -75,7 +75,7 @@ describe("Local account routes", function() {
                 .send({
                     name: "Test Account",
                     email: "email@example.com",
-                    password: "test123"
+                    password: "xxx-xxx"
                 })
                 .expect(400)
                 .expect("Content-Type", "application/json; charset=utf-8")
@@ -97,7 +97,7 @@ describe("Local account routes", function() {
             newUser.displayName = "Test User";
             newUser.local.email = "email@example.com";
             newUser.local.name = "Test User";
-            newUser.local.password = newUser.generateHash("test123");
+            newUser.local.password = newUser.generateHash("xxx-xxx");
             newUser.save(function(err) {
                 if(err) {
                     throw err;
@@ -120,7 +120,7 @@ describe("Local account routes", function() {
                 .post("/api/token")
                 .send({
                     email: "email@example.com",
-                    password: "test123"
+                    password: "xxx-xxx"
                 })
                 .expect(200)
                 .expect("Content-Type", "application/json; charset=utf-8")

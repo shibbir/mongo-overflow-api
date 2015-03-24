@@ -1,9 +1,8 @@
 var tagService = require("../services/tagService");
 
-module.exports = function(app, passport) {
+module.exports = function(app) {
     "use strict";
 
     app.route("/api/tags")
-        .get(tagService.getTags)
-        .post(passport.authenticate("http-bearer", { session: false }), tagService.getTags);
+        .get(tagService.getTags);
 };

@@ -96,7 +96,7 @@ var postQuestion = function(req, res) {
 
     questionRepository.insert(model, function(err, doc) {
         if(err) {
-            return res.status(500).json(formatterService.formatValidation(err));
+            return res.status(500).json(formatterService.formatError(err));
         }
         res.status(200).json(doc);
     });

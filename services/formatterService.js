@@ -1,6 +1,6 @@
 var _ = require("lodash");
 
-exports.formatValidation = function(err) {
+exports.formatError = function(err) {
     "use strict";
 
     var messages = [];
@@ -13,6 +13,8 @@ exports.formatValidation = function(err) {
         if(err.code === 11000) {
             messages.push("Duplicate index error happened.");
         }
+    } else {
+        messages.push(err.message);
     }
 
     return {

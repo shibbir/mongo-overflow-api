@@ -13,7 +13,7 @@ require("../config/passport")(passport);
 
 require("../routes/question")(app, passport);
 
-describe("Question Routes", function() {
+describe("Question routes", function() {
 
     before(function(done) {
         mongoose.connect(config.db.testUrl);
@@ -26,7 +26,7 @@ describe("Question Routes", function() {
     });
 
     describe("GET /api/questions", function() {
-        it("should return questions collection with pagination data", function(done) {
+        it("should return paginated question collection", function(done) {
             request(app)
                 .get("/api/questions")
                 .expect(200)
@@ -53,7 +53,7 @@ describe("Question Routes", function() {
             newUser.displayName = "Test User";
             newUser.local.email = "email@example.com";
             newUser.local.name = "Test User";
-            newUser.local.password = newUser.generateHash("test123");
+            newUser.local.password = newUser.generateHash("xxx-xxx");
             newUser.save(function(err) {
                 if(err) {
                     throw err;

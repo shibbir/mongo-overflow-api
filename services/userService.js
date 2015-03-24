@@ -3,6 +3,7 @@ var _                 = require("lodash"),
     validator         = require("validator"),
     utilityService    = require("../services/utilityService"),
     userRepository    = require("../repositories/userRepository"),
+    formatterService  = require("./formatterService"),
     reputationService = require("../services/reputationService");
 
 var formatUserViewModel = function(user) {
@@ -76,15 +77,20 @@ var updateInfo = function(req, res) {
         "local.email": req.body.email,
         website: req.body.website,
         location: req.body.location,
-        "birthday.day": _.parseInt(_.result(req.body.birthday, "day")),
-        "birthday.month": _.parseInt(_.result(req.body.birthday, "month")),
-        "birthday.year": _.parseInt(_.result(req.body.birthday, "year")),
         displayName: req.body.displayName
     };
 
+    if(req.body.birthday && !isNaN(req.body.birthday.day) && !isNaN(req.body.birthday.month) && !isNaN(req.body.birthday.year)) {
+        model.birthday = {
+            day: _.parseInt(req.body.birthday.day),
+            month: _.parseInt(req.body.birthday.month),
+            year: _.parseInt(req.body.birthday.year)
+        };
+    }
+
     userRepository.update({ _id: req.params.id }, { $set: model }, null, function(err) {
         if(err) {
-            return res.sendStatus(500);
+            return res.status(400).json(formatterService.formatError(err));
         }
 
         res.sendStatus(200);
