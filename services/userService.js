@@ -1,5 +1,7 @@
 var _                 = require("lodash"),
+    fs                = require("fs"),
     moment            = require("moment"),
+    constants         = require("../config/constants"),
     validator         = require("validator"),
     utilityService    = require("../services/utilityService"),
     userRepository    = require("../repositories/userRepository"),
@@ -41,7 +43,10 @@ var getUser = function(req, res) {
             doc = doc.toObject();
 
             if(doc.avatar) {
-                doc.avatar = utilityService.getProtocol(req) + "://" + "localhost:7575" + "/uploads/" + doc.avatar;
+                doc.avatar = {
+                    fileName: doc.avatar,
+                    absolutePath: utilityService.getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT + doc.avatar
+                };
             }
 
             res.status(200).json(formatUserViewModel(doc));
@@ -116,12 +121,21 @@ var changeAvatar = function(req, res) {
         return res.sendStatus(400);
     }
 
+    var prevFileName = req.user.avatar;
+
     userRepository.update({ _id: req.params.id }, { $set: { avatar: req.files.file.name }}, null, function(err) {
         if(err) {
             return res.sendStatus(500);
         }
 
-        res.sendStatus(200);
+        if(prevFileName && fs.existsSync("www/uploads/" + prevFileName)) {
+            fs.unlink("www/uploads/" + prevFileName, function() {
+                res.status(200).json({
+                    fileName: req.files.file.name,
+                    absolutePath : utilityService.getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT + req.files.file.name
+                });
+            });
+        }
     });
 };
 
