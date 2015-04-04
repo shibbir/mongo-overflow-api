@@ -1,50 +1,36 @@
-var request  = require("supertest"),
-    app      = require("../config/express")(),
-    should   = require("should"),
-    config   = require("../config/env/development"),
-    mongoose = require("mongoose"),
-    jwt      = require("jwt-simple"),
-    User     = require("../models/user"),
-    moment   = require("moment"),
-    passport = require("passport");
+var request   = require("supertest"),
+    app       = require("../config/express")(),
+    chai      = require("chai"),
+    should    = chai.should(),
+    config    = require("../config/env/development"),
+    mongoose  = require("mongoose"),
+    passport  = require("passport"),
+    testDummy = require("./testDummy");
 
 require("../config/passport")(passport);
-
 require("../routes/user")(app, passport);
 
 describe("User profile routes", function() {
     "use strict";
 
-    var newUser = null,
-        token;
+    var newUser, accessToken;
 
     before(function(done) {
         mongoose.connect(config.db.testUrl);
 
-        newUser = new User();
-
-        newUser._id = mongoose.Types.ObjectId();
-        newUser.displayName = "Test User";
-        newUser.local.email = "email@example.com";
-        newUser.local.name = "Test User";
-        newUser.local.password = newUser.generateHash("xxx-xxx");
-        newUser.save(function(err) {
-            if(err) {
+        testDummy.getAccessToken(function(err, user, token) {
+            if (err) {
                 throw err;
             }
-            token = jwt.encode({
-                iss: newUser._id,
-                exp: moment().add(7, "days").valueOf()
-            }, app.get("jwtTokenSecret"));
+            newUser = user;
+            accessToken = token;
+
             done();
         });
     });
 
     after(function(done) {
-        User.remove({ "local.email": "newemail@emall.com" }, function(err) {
-            if(err) {
-                throw err;
-            }
+        testDummy.reset(function() {
             mongoose.connection.close();
             done();
         });
@@ -53,7 +39,7 @@ describe("User profile routes", function() {
     describe("PATCH /api/users/:id/changePassword", function() {
         it("should update password", function(done) {
             request(app)
-                .patch("/api/users/"+ newUser._id + "/changePassword?access_token=" + token)
+                .patch("/api/users/"+ newUser._id + "/changePassword?access_token=" + accessToken)
                 .send({
                     oldPassword: "xxx-xxx",
                     newPassword: "yyy-yyy",
@@ -61,7 +47,7 @@ describe("User profile routes", function() {
                 })
                 .expect(200)
                 .end(function(err) {
-                    if(err) {
+                    if (err) {
                         throw err;
                     }
                     done();
@@ -72,7 +58,7 @@ describe("User profile routes", function() {
     describe("PATCH /api/users/:id", function() {
         it("should update profile information", function(done) {
             request(app)
-                .patch("/api/users/"+ newUser._id + "?access_token=" + token)
+                .patch("/api/users/"+ newUser._id + "?access_token=" + accessToken)
                 .send({
                     bio: "My Bio",
                     website: "http://example.com",
@@ -83,7 +69,7 @@ describe("User profile routes", function() {
                 })
                 .expect(200)
                 .end(function(err) {
-                    if(err) {
+                    if (err) {
                         throw err;
                     }
                     done();

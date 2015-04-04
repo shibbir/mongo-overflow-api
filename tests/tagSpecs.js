@@ -1,6 +1,7 @@
 var request  = require("supertest"),
     app      = require("../config/express")(),
-    should   = require("should"),
+    chai     = require("chai"),
+    should   = chai.should(),
     config   = require("../config/env/development"),
     mongoose = require("mongoose"),
     Tag      = require("../models/tag"),

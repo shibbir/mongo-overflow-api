@@ -1,68 +1,53 @@
-var request  = require("supertest"),
-    app      = require("../config/express")(),
-    User     = require("../models/user"),
-    should   = require("should"),
-    config   = require("../config/env/development"),
-    mongoose = require("mongoose"),
-    passport = require("passport");
+var request   = require("supertest"),
+    app       = require("../config/express")(),
+    chai      = require("chai"),
+    should    = chai.should(),
+    faker     = require("Faker"),
+    config    = require("../config/env/development"),
+    mongoose  = require("mongoose"),
+    passport  = require("passport"),
+    testDummy = require("./testDummy");
 
 require("../config/passport")(passport);
 require("../routes/account")(app, passport);
 
 describe("Local account routes", function() {
+    "use strict";
+
+    var newUser = null;
 
     before(function(done) {
         mongoose.connect(config.db.testUrl);
-        done();
+
+        testDummy.getAccessToken(function(err, user) {
+            if (err) {
+                throw err;
+            }
+            newUser = user;
+            done();
+        });
     });
 
     after(function(done) {
-        mongoose.connection.close();
-        done();
+        testDummy.reset(function() {
+            mongoose.connection.close();
+            done();
+        });
     });
 
     describe("POST /api/register", function() {
-        before(function (done) {
-            var newUser = new User();
-
-            newUser._id = mongoose.Types.ObjectId();
-            newUser.displayName = "Test User";
-            newUser.local.email = "email@example.com";
-            newUser.local.name = "Test User";
-            newUser.local.password = newUser.generateHash("xxx-xxx");
-            newUser.save(function(err) {
-                if(err) {
-                    throw err;
-                }
-                done();
-            });
-        });
-
-        after(function(done) {
-            User.remove({ "local.email": "email@example.com" }, function(err) {
-                if(err) {
-                    throw err;
-                }
-                User.remove({ "local.email": "email2@example.com" }, function(err) {
-                    if(err) {
-                        throw err;
-                    }
-                    done();
-                });
-            });
-        });
 
         it("should create a new local account", function(done) {
             request(app)
                 .post("/api/register")
                 .send({
-                    name: "Test User",
-                    email: "email2@example.com",
+                    name: faker.Name.findName(),
+                    email: faker.Internet.email(),
                     password: "xxx-xxx"
                 })
                 .expect(200)
                 .end(function(err) {
-                    if(err) {
+                    if (err) {
                         throw err;
                     }
                     done();
@@ -73,14 +58,14 @@ describe("Local account routes", function() {
             request(app)
                 .post("/api/register")
                 .send({
-                    name: "Test Account",
-                    email: "email@example.com",
+                    name: faker.Name.findName(),
+                    email: newUser.local.email,
                     password: "xxx-xxx"
                 })
                 .expect(400)
                 .expect("Content-Type", "application/json; charset=utf-8")
                 .end(function(err, res) {
-                    if(err) {
+                    if (err) {
                         throw err;
                     }
                     res.body.should.have.property("type");
@@ -91,41 +76,18 @@ describe("Local account routes", function() {
     });
 
     describe("POST /api/token", function() {
-        before(function (done) {
-            var newUser = new User();
-
-            newUser.displayName = "Test User";
-            newUser.local.email = "email@example.com";
-            newUser.local.name = "Test User";
-            newUser.local.password = newUser.generateHash("xxx-xxx");
-            newUser.save(function(err) {
-                if(err) {
-                    throw err;
-                }
-                done();
-            });
-        });
-
-        after(function(done) {
-            User.remove({ "local.email": "email@example.com" }, function(err) {
-                if(err) {
-                    throw err;
-                }
-                done();
-            });
-        });
 
         it("should return access token if credentials are valid", function(done) {
             request(app)
                 .post("/api/token")
                 .send({
-                    email: "email@example.com",
+                    email: newUser.local.email,
                     password: "xxx-xxx"
                 })
                 .expect(200)
                 .expect("Content-Type", "application/json; charset=utf-8")
                 .end(function(err, res) {
-                    if(err) {
+                    if (err) {
                         throw err;
                     }
                     res.body.should.have.property("accessToken");
@@ -140,12 +102,13 @@ describe("Local account routes", function() {
             request(app)
                 .post("/api/token")
                 .send({
-                    email: "entruder@example.com"
+                    email: faker.Internet.email(),
+                    password: "yyy-yyy"
                 })
                 .expect(401)
                 .expect("Content-Type", "application/json; charset=utf-8")
                 .end(function(err, res) {
-                    if(err) {
+                    if (err) {
                         throw err;
                     }
                     res.body.should.have.property("type");

@@ -26,24 +26,24 @@ module.exports = function(passport) {
      =========================================================================
      */
     passport.use("http-bearer", new BearerStrategy(function(token, done) {
-        if(token) {
+        if (token) {
             try {
                 var decodedToken = jwt.decode(token, "a17dd903-6ffa-46d4-901a-3d34b55fce2b");
 
-                if(decodedToken.exp <= Date.now()) {
+                if (decodedToken.exp <= Date.now()) {
                     return done(null, false);
                 }
 
-                User.findOne({ _id: decodedToken.iss }, function (err, user) {
-                    if(err) {
+                User.findOne({ _id: decodedToken.iss }, function(err, user) {
+                    if (err) {
                         return done(err);
                     }
-                    if(!user) {
+                    if (!user) {
                         return done(null, false);
                     }
                     return done(null, user, { scope: "read" });
                 });
-            } catch(err) {
+            } catch (err) {
                 done(null, false);
             }
         }
@@ -60,7 +60,7 @@ module.exports = function(passport) {
         passwordField: "password",
         passReqToCallback: true
     }, function(req, email, password, done) {
-        if(email) {
+        if (email) {
             email = email.toLowerCase();
         }
 
@@ -72,11 +72,11 @@ module.exports = function(passport) {
                 { "google.email": email },
                 { "github.email": email }
             ]}, function(err, user) {
-                if(err) {
+                if (err) {
                     return done(err);
                 }
 
-                if(user) {
+                if (user) {
                     return done(null, false, { message: "Email address is already registered." });
                 } else {
                     var newUser = new User();
@@ -87,7 +87,7 @@ module.exports = function(passport) {
                     newUser.local.password = newUser.generateHash(password);
 
                     newUser.save(function(err) {
-                        if(err) {
+                        if (err) {
                             return done(err);
                         }
                         done(null, newUser);
@@ -116,18 +116,18 @@ module.exports = function(passport) {
                 { "google.email": profile.emails[0].value },
                 { "github.email": profile.emails[0].value }
             ]}, function(err, user) {
-                if(err) {
+                if (err) {
                     return done(err);
                 }
 
-                if(user) {
-                    if(!user.facebook.token) {
+                if (user) {
+                    if (!user.facebook.token) {
                         user.facebook.token = token;
                         user.facebook.name = profile.name.givenName + " " + profile.name.familyName;
                         user.facebook.email = profile.emails[0].value;
 
                         user.save(function(err) {
-                            if(err) {
+                            if (err) {
                                 return done(err);
                             }
                             done(null, user);
@@ -145,7 +145,7 @@ module.exports = function(passport) {
                     newUser.displayName = newUser.facebook.name;
 
                     newUser.save(function(err) {
-                        if(err) {
+                        if (err) {
                             throw err;
                         }
                         done(null, newUser);
@@ -175,18 +175,18 @@ module.exports = function(passport) {
                     { "twitter.email": profile.emails[0].value },
                     { "github.email": profile.emails[0].value }
                 ]}, function(err, user) {
-                    if(err) {
+                    if (err) {
                         return done(err);
                     }
 
-                    if(user) {
-                        if(!user.google.token) {
+                    if (user) {
+                        if (!user.google.token) {
                             user.google.token = token;
                             user.google.name = profile.displayName;
                             user.google.email = profile.emails[0].value;
 
                             user.save(function(err) {
-                                if(err) {
+                                if (err) {
                                     return done(err);
                                 }
                                 done(null, user);
@@ -203,7 +203,7 @@ module.exports = function(passport) {
                         newUser.displayName = profile.displayName;
 
                         newUser.save(function(err) {
-                            if(err) {
+                            if (err) {
                                 return done(err);
                             }
                             done(null, newUser);
@@ -232,19 +232,19 @@ module.exports = function(passport) {
                 { "local.email": profile.emails[0].value },
                 { "twitter.email": profile.emails[0].value }
             ]}, function(err, user) {
-                if(err) {
+                if (err) {
                     return done(err);
                 }
 
-                if(user) {
-                    if(!user.github.id) {
+                if (user) {
+                    if (!user.github.id) {
                         user.github.id = profile.id;
                         user.github.name = profile.displayName;
                         user.github.email = profile.emails[0].value;
                         user.github.username = profile.username;
 
                         user.save(function(err) {
-                            if(err) {
+                            if (err) {
                                 return done(err);
                             }
                             done(null, user);
@@ -261,7 +261,7 @@ module.exports = function(passport) {
                     newUser.displayName = profile.displayName;
 
                     newUser.save(function(err) {
-                        if(err) {
+                        if (err) {
                             return done(err);
                         }
                         done(null, newUser);

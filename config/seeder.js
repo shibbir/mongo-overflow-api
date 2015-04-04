@@ -103,7 +103,7 @@ var userSeeder = function(callback) {
         user.local.name = faker.Name.findName();
         user.displayName = user.local.name;
         user.local.email = faker.Internet.email();
-        user.local.password = user.generateHash("123456");
+        user.local.password = user.generateHash("xxx-xxx");
         user.location = faker.Address.ukCountry();
         user.website = "http://www." + faker.Internet.domainName();
 
@@ -171,7 +171,10 @@ var commentSeeder = function(callback) {
             text: faker.Lorem.sentences(_.random(1, 3)),
             commenter: users[ _.random(0, numOfUsers - 1) ]._id,
             question: question,
-            parentId: question
+            area: {
+                id: question,
+                name: enums.area.Question
+            }
         }).save(function(err, comment) {
                 comments.push(comment);
                 asyncCallback();
@@ -205,7 +208,7 @@ var answerSeeder = function(callback) {
 exports.seed = function () {
     "use strict";
 
-    async.series([ userSeeder, tagSeeder, badgeSeeder, questionSeeder, commentSeeder, answerSeeder], function(err, messages) {
+    async.series([ userSeeder, tagSeeder, badgeSeeder, questionSeeder, commentSeeder, answerSeeder ], function(err, messages) {
         _.forEach(messages, function(message) {
             console.info(message);
         });

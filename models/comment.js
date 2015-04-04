@@ -1,5 +1,6 @@
 var mongoose = require("mongoose"),
-    Schema   = mongoose.Schema;
+    Schema   = mongoose.Schema,
+    enums    = require("../config/enums");
 
 var CommentSchema = Schema({
     text: {
@@ -10,9 +11,15 @@ var CommentSchema = Schema({
         type: Schema.Types.ObjectId,
         ref: "Question"
     },
-    parentId: {
-        type: Schema.Types.ObjectId,
-        required: true
+    area: {
+        id: {
+            type: Schema.Types.ObjectId,
+            required: true
+        },
+        name: {
+            type: String,
+            enum: [ enums.area.Question, enums.area.Answer ]
+        }
     },
     commenter: {
         type: Schema.Types.ObjectId,

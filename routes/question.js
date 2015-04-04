@@ -19,4 +19,8 @@ module.exports = function(app, passport) {
     app.route("/api/questions/:id/favorite")
         .patch(passport.authenticate("http-bearer", { session: false }), questionService.pushFavorite)
         .delete(passport.authenticate("http-bearer", { session: false }), questionService.pullFavorite);
+
+    app.route("/api/questions/:id/comments")
+        .get(questionService.getComments)
+        .post(passport.authenticate("http-bearer", { session: false }), questionService.addComment);
 };

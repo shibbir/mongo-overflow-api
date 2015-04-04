@@ -129,13 +129,13 @@ var changeAvatar = function(req, res) {
         }
 
         if(prevFileName && fs.existsSync("www/uploads/" + prevFileName)) {
-            fs.unlink("www/uploads/" + prevFileName, function() {
-                res.status(200).json({
-                    fileName: req.files.file.name,
-                    absolutePath : utilityService.getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT + req.files.file.name
-                });
-            });
+            fs.unlinkSync("www/uploads/" + prevFileName);
         }
+
+        res.status(200).json({
+            fileName: req.files.file.name,
+            absolutePath : utilityService.getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT + req.files.file.name
+        });
     });
 };
 

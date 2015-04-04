@@ -1,10 +1,12 @@
 var Tag                = require("../models/tag"),
     _                  = require("lodash"),
+    User               = require("../models/user"),
+    enums              = require("../config/enums"),
     Question           = require("../models/question"),
     validator          = require("validator"),
-    User               = require("../models/user"),
     formatterService   = require("./formatterService"),
     reputationService  = require("./reputationService"),
+    commentService  = require("../services/commentService"),
     questionRepository = require("../repositories/questionRepository");
 
 var formatQuestion = function(question) {
@@ -243,6 +245,35 @@ var getCountByQuery = function(query, callback) {
     });
 };
 
+var addComment = function(req, res) {
+    "use strict";
+
+    req.body.area = {
+        id: req.params.id,
+        name: enums.area.Question
+    };
+
+    commentService.addComment(req, function(err, doc) {
+        if(err) {
+            return res.sendStatus(500);
+        }
+
+        res.status(200).json(doc);
+    });
+};
+
+var getComments = function(req, res) {
+    "use strict";
+
+    commentService.getComments(function(err, docs) {
+        if (err) {
+            return res.sendStatus(500);
+        }
+
+        res.status(200).json(docs);
+    });
+};
+
 exports.getQuestion = getQuestion;
 exports.getQuestions = getQuestions;
 exports.postQuestion = postQuestion;
@@ -251,3 +282,5 @@ exports.downVote = downVote;
 exports.pushFavorite = pushFavorite;
 exports.pullFavorite = pullFavorite;
 exports.getCountByQuery = getCountByQuery;
+exports.addComment = addComment;
+exports.getComments = getComments;
