@@ -42,7 +42,10 @@ var UserSchema = Schema({
         type: String,
         required: true
     },
-    avatar: String,
+    avatar: {
+        fileName: String,
+        relativePath: String
+    },
     location: String,
     website: String,
     bio: String,

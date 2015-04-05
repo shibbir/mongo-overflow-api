@@ -4,7 +4,7 @@
 
 var app = require("./config/express")();
 
-if (app.settings.env === "production") {
+if(app.settings.env === "production") {
     config = require("./config/env/production");
 }
 

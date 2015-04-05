@@ -6,7 +6,7 @@ var Tag                = require("../models/tag"),
     validator          = require("validator"),
     formatterService   = require("./formatterService"),
     reputationService  = require("./reputationService"),
-    commentService  = require("../services/commentService"),
+    commentService     = require("../services/commentService"),
     questionRepository = require("../repositories/questionRepository");
 
 var formatQuestion = function(question) {
@@ -265,7 +265,7 @@ var addComment = function(req, res) {
 var getComments = function(req, res) {
     "use strict";
 
-    commentService.getComments(function(err, docs) {
+    commentService.getComments(req, function(err, docs) {
         if (err) {
             return res.sendStatus(500);
         }

@@ -1,3 +1,5 @@
+var constants = require("../config/constants");
+
 var getHost = function(req) {
     "use strict";
     return req.hostname;
@@ -23,7 +25,14 @@ var calcAge = function(dateString) {
 
 var isSameObjectId = function(propA, propB) {};
 
+var getPublicUploadPath = function(req) {
+    "use strict";
+
+    return getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT;
+};
+
 exports.calcAge = calcAge;
 exports.getHost = getHost;
 exports.getProtocol = getProtocol;
 exports.isSameObjectId = isSameObjectId;
+exports.getPublicUploadPath = getPublicUploadPath;

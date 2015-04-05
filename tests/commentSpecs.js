@@ -66,5 +66,20 @@ describe("Comment Routes", function() {
                     done();
                 });
         });
+
+        it("should get comments for a question", function(done) {
+            request(app)
+                .get("/api/questions/" + question._id + "/comments")
+                .expect(200)
+                .expect("Content-Type", "application/json; charset=utf-8")
+                .end(function(err, res) {
+                    if (err) {
+                        throw err;
+                    }
+                    res.body.should.have.property("data");
+                    res.body.data.length.should.not.be.above(5);
+                    done();
+                });
+        });
     });
 });

@@ -4,9 +4,18 @@ var Tag                = require("../models/tag"),
     enums              = require("../config/enums"),
     Question           = require("../models/question"),
     validator          = require("validator"),
-    constants          = require("../config/constants"),
     utilityService     = require("../services/utilityService"),
     commentRepository  = require("../repositories/commentRepository");
+
+var formatComment = function(req, comment) {
+    "use strict";
+
+    if(comment.commenter.avatar) {
+        comment.commenter.avatar.absolutePath = utilityService.getPublicUploadPath(req) + comment.commenter.avatar.fileName;
+    }
+
+    return comment;
+};
 
 var addComment = function(req, callback) {
     "use strict";
@@ -25,17 +34,9 @@ var addComment = function(req, callback) {
             return callback(err);
         }
 
-        doc = doc.toObject();
-        doc.commenter = {
-            _id: req.user.id,
-            displayName: req.user.displayName,
-            avatar: {
-                fileName: req.user.avatar,
-                absolutePath: utilityService.getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT + req.user.avatar
-            }
-        };
+        doc.commenter = _.pick(req.user, [ "displayName", "avatar" ]);
 
-        callback(null, doc);
+        callback(null, formatComment(req, doc.toObject()));
     });
 };
 
@@ -57,7 +58,13 @@ var getComments = function(req, callback) {
             return callback(err);
         }
 
-        callback(null, docs);
+        _.forEach(docs, function(doc) {
+            doc = formatComment(req, doc);
+        });
+
+        callback(null, {
+            data: docs
+        });
     });
 };
 

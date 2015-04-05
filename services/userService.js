@@ -1,14 +1,13 @@
 var _                 = require("lodash"),
     fs                = require("fs"),
     moment            = require("moment"),
-    constants         = require("../config/constants"),
     validator         = require("validator"),
     utilityService    = require("../services/utilityService"),
     userRepository    = require("../repositories/userRepository"),
     formatterService  = require("./formatterService"),
     reputationService = require("../services/reputationService");
 
-var formatUserViewModel = function(user) {
+var formatUserViewModel = function(req, user) {
     "use strict";
 
     if(user.birthday) {
@@ -26,6 +25,10 @@ var formatUserViewModel = function(user) {
 
     delete user.reputations;
 
+    if(user.avatar) {
+        user.avatar.absolutePath = utilityService.getPublicUploadPath(req) + user.avatar.fileName;
+    }
+
     return user;
 };
 
@@ -40,16 +43,7 @@ var getUser = function(req, res) {
                 return res.sendStatus(500);
             }
 
-            doc = doc.toObject();
-
-            if(doc.avatar) {
-                doc.avatar = {
-                    fileName: doc.avatar,
-                    absolutePath: utilityService.getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT + doc.avatar
-                };
-            }
-
-            res.status(200).json(formatUserViewModel(doc));
+            res.status(200).json(formatUserViewModel(req, doc.toObject()));
         });
 };
 
@@ -121,21 +115,24 @@ var changeAvatar = function(req, res) {
         return res.sendStatus(400);
     }
 
-    var prevFileName = req.user.avatar;
+    var oldAvatar = req.user.avatar,
+        newAvatar = {
+            fileName: req.files.file.name,
+            relativePath: "/uploads/" + req.files.file.name
+        };
 
-    userRepository.update({ _id: req.params.id }, { $set: { avatar: req.files.file.name }}, null, function(err) {
+    userRepository.update({ _id: req.params.id }, { $set: { avatar: newAvatar }}, null, function(err) {
         if(err) {
             return res.sendStatus(500);
         }
 
-        if(prevFileName && fs.existsSync("www/uploads/" + prevFileName)) {
-            fs.unlinkSync("www/uploads/" + prevFileName);
+        if(oldAvatar && fs.existsSync("www/uploads/" + oldAvatar.fileName)) {
+            fs.unlinkSync("www/uploads/" + oldAvatar.fileName);
         }
 
-        res.status(200).json({
-            fileName: req.files.file.name,
-            absolutePath : utilityService.getProtocol(req) + "://" + "localhost:7575" + constants.UPLOAD_ROOT + req.files.file.name
-        });
+        newAvatar.absolutePath = utilityService.getPublicUploadPath(req) + newAvatar.fileName;
+
+        res.status(200).json(newAvatar);
     });
 };
 
